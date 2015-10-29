@@ -17,7 +17,9 @@ To spawn a new instance of Moodle:
 
 ```
 docker run --name moodle1 \
-  -e VIRTUAL_HOST=moodle.domain.com -e MAIL_HOST=email-smtp.us-east-1.amazonaws.com:465 -e APACHE_PORT=81 -e AUTH_USER=MAILUSER -e AUTH_PASS=MAILPASSWORD --expose=81 -d -t -p 81:81 moodle3b_ssmtp
+  -e VIRTUAL_HOST=moodle.domain.com -e MAIL_HOST=email-smtp.us-east-1.amazonaws.com:465 \
+  -e APACHE_PORT=81 -e AUTH_USER=MAILUSER -e AUTH_PASS=MAILPASSWORD \
+  --expose=81 -d -t -p 81:81 moodle3b_ssmtp
 ```
 
 You can visit the following URL in a browser to get started:
