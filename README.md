@@ -16,7 +16,8 @@ docker build -t moodle .
 To spawn a new instance of Moodle:
 
 ```
-docker run --name moodle1 -e VIRTUAL_HOST=moodle.domain.com -e MAIL_HOST=email-smtp.us-east-1.amazonaws.com:465 -e APACHE_PORT=81 -e AUTH_USER=MAILUSER -e AUTH_PASS=MAILPASSWORD --expose=81 -d -t -p 81:81 moodle3b_ssmtp
+docker run --name moodle1 \
+  -e VIRTUAL_HOST=moodle.domain.com -e MAIL_HOST=email-smtp.us-east-1.amazonaws.com:465 -e APACHE_PORT=81 -e AUTH_USER=MAILUSER -e AUTH_PASS=MAILPASSWORD --expose=81 -d -t -p 81:81 moodle3b_ssmtp
 ```
 
 You can visit the following URL in a browser to get started:
@@ -35,17 +36,23 @@ easily re-instated by uncommenting it.
 
 ## Pre-requisites
 
-* You must have an Amazon AWS account.
+* You must have an Amazon AWS account (cf. https://aws.amazon.com/).
 * If you want to use a port number other than 80, you will need to edit the Amazon security group
 settings for your AMI instance to add it in,
 or you won't be able to access it externally.
 * You must register for the Amazon SES service in order to get 
-SES SMTP server authentication details to be able to send emails.
-* When testing the SES service from your Docker instance, you must first verify your from 
+SES SMTP server authentication details to be able to send emails
+(cf. http://docs.aws.amazon.com/ses/latest/DeveloperGuide/Welcome.html).
+The details you need include the name of the SMTP mail server, a username and a password.
+(cf. 
+* You must register any email addresses you want to use for testing on the Amazon SES also
+(cf. http://docs.aws.amazon.com/ses/latest/DeveloperGuide/verify-email-addresses.html).
+verify your from 
 (and probably to) email address(es) using the Amazon console, or your message will be 
 rejected.
 
-You can test sending emails using the following command:
+You can test sending emails using the following command
+(cf. http://www.havetheknowhow.com/Configure-the-server/Install-ssmtp.html):
 
 ```
 ssmtp -v success@simulator.amazonses.com << EMAIL
@@ -58,6 +65,7 @@ Hello, world.
 EMAIL
 ```
 
+The sSMTP service is configured using information from http://edoceo.com/howto/ssmtp#ses.
 You can choose not to use the SES service, but another email provider instead. 
 However, you'll have to figure out the exact email configuration yourself, and it's
 not trivial.
