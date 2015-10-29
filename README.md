@@ -42,7 +42,8 @@ You can choose not to use the SES service, but another email provider instead.
 However, you'll have to figure out the exact email configuration yourself, and it's
 not trivial.
 
-
+If you want to use a port number other than 80, you will need to edit the Amazon security group
+settings to add it in, or you won't be able to access it externally.
 
 ## Acknowledgements
 

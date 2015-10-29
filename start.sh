@@ -34,8 +34,7 @@ if [ ! -f /var/www/html/moodle/config.php ]; then
 
   # Configure ssmtp to forward mail to Amazon SES SMTP server
   # cf. http://edoceo.com/howto/ssmtp#ses
-  if [ ! -z "$MAIL_HOST" -a ! -z "$VIRTUAL_HOST" -a ! -z "$AUTH_USER" -a ! -z "$AUTH_PASS" ]
-  then
+  if [ ! -z "$MAIL_HOST" -a ! -z "$VIRTUAL_HOST" -a ! -z "$AUTH_USER" -a ! -z "$AUTH_PASS" ]; then
     sed -ri -e "s/^(mailhub=).*/\1$MAIL_HOST/" \
       -e "s/^#(rewriteDomain=)/\1$VIRTUAL_HOST/" \
       -e "s/^(hostname=).*/\1$VIRTUAL_HOST/" \
@@ -44,9 +43,9 @@ if [ ! -f /var/www/html/moodle/config.php ]; then
   fi
 
 
-  if [ ! -z "$APACHE_PORT" ]
-  then
+  if [ ! -z "$APACHE_PORT" ]; then
     sed -ri -e "s/^(Listen).*/\1 $APACHE_PORT/" /etc/apache2/ports.conf
+    sed -ri -e "s/^(<VirtualHost \*):.*>/\1:$APACHE_PORT>/" /etc/apache2/sites-available/000-default.conf
   fi
 
 fi
