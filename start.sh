@@ -25,7 +25,7 @@ if [ ! -f /var/www/html/moodle/config.php ]; then
 
   # sed -i 's/PermitRootLogin without-password/PermitRootLogin Yes/' /etc/ssh/sshd_config
 
-  chown www-data:www-data /var/www/html/moodle/config.php
+  chown www-data:www-data /var/www/html/config.php
 
   mysqladmin -u root password $MYSQL_PASSWORD
   mysql -uroot -p$MYSQL_PASSWORD -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY '$MYSQL_PASSWORD' WITH GRANT OPTION; FLUSH PRIVILEGES;"
@@ -40,13 +40,13 @@ if [ ! -f /var/www/html/moodle/config.php ]; then
       -e "s/^#(rewriteDomain=)/\1$VIRTUAL_HOST/" \
       -e "s/^(hostname=).*/\1$VIRTUAL_HOST/" \
       -e "/^(hostname=)/ s/$/\nAuthUser=$AUTH_USER\nAuthPass=$AUTH_PASS\nUseTLS=YES/" \
-      -e "s/^#(FromLineOverride)/\1/" /tmp/ssmtp.conf
+      -e "s/^#(FromLineOverride)/\1/" /etc/ssmtp/ssmtp.conf
   fi
 
 
   if [ ! -z "$APACHE_PORT" ]
   then
-    sed -ri -e "s/^(Listen).*/\1 $APACHE_PORT/" /tmp/ports.conf
+    sed -ri -e "s/^(Listen).*/\1 $APACHE_PORT/" /etc/apache2/ports.conf
   fi
 
 fi

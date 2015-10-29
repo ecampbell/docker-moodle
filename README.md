@@ -6,8 +6,8 @@ Moodle on an Amazon AMI with Apache, PHP, MySQL and ssmtp
 ## Installation
 
 ```
-git clone https://github.com/ecampbell/docker-moodle.git
-cd docker-moodle
+git clone https://github.com/ecampbell/docker-moodle-ssmtp.git
+cd docker-moodle-ssmtp
 docker build -t moodle .
 ```
 
