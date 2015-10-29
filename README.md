@@ -8,24 +8,24 @@ Moodle on an Amazon AMI with Apache, PHP, MySQL and ssmtp
 ```
 git clone https://github.com/ecampbell/docker-moodle-ssmtp.git
 cd docker-moodle-ssmtp
-docker build -t moodle .
+docker build -t moodle3b_ssmtp .
 ```
 
 ## Usage
 
-To spawn a new instance of Moodle:
+To spawn a new instance of Moodle using port 81 as the web server port:
 
 ```
-docker run --name moodle1 \
+docker run --name moodle3b_ssmtp \
   -e VIRTUAL_HOST=moodle.domain.com -e MAIL_HOST=email-smtp.us-east-1.amazonaws.com:465 \
   -e APACHE_PORT=81 -e AUTH_USER=MAILUSER -e AUTH_PASS=MAILPASSWORD \
   --expose=81 -d -t -p 81:81 moodle3b_ssmtp
 ```
 
-You can visit the following URL in a browser to get started:
+You can then visit the following URL in a browser to get started:
 
 ```
-http://moodle.domain.com/
+http://moodle.domain.com:81/
 ```
 
 ## Implementation details
@@ -33,8 +33,9 @@ http://moodle.domain.com/
 This configuration is tuned for use on an Amazon AMI, using the Amazon SES (Simple Email Service)
 to send out-bound emails from the server for user registration, news, etc.
 
-The SSH service is disabled on the instance, as this seems to be good practice, but it can be
-easily re-instated by uncommenting it.
+The SSH service is disabled in the instance, as this seems to be good Docker practice, 
+but it can be easily re-instated by uncommenting it
+(you will need to edit Dockerfile, start.sh and supervisord.conf).
 
 ## Pre-requisites
 
@@ -49,11 +50,10 @@ The details you need include the name of the SMTP mail server, a username and a 
 (cf. 
 * You must register any email addresses you want to use for testing on the Amazon SES also
 (cf. http://docs.aws.amazon.com/ses/latest/DeveloperGuide/verify-email-addresses.html).
-verify your from 
-(and probably to) email address(es) using the Amazon console, or your message will be 
-rejected.
+Verify your from (and probably to) email address(es) using the Amazon console, 
+or your message will be rejected by the Amazon SES SMTP server.
 
-You can test sending emails using the following command
+You can test sending emails and watch the progress (-v) using the following command
 (cf. http://www.havetheknowhow.com/Configure-the-server/Install-ssmtp.html):
 
 ```
@@ -68,9 +68,8 @@ EMAIL
 ```
 
 The sSMTP service is configured using information from http://edoceo.com/howto/ssmtp#ses.
-You can choose not to use the SES service, but another email provider instead. 
-However, you'll have to figure out the exact email configuration yourself, and it's
-not trivial.
+You can choose not to use the Amazon SES service, and use another email provider instead. 
+For example, instructions for GMail are available at https://wiki.archlinux.org/index.php/SSMTP
 
 
 ## Acknowledgements
