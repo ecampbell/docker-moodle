@@ -35,15 +35,33 @@ easily re-instated by uncommenting it.
 
 ## Pre-requisites
 
-You must have an Amazon account, and also register for the Amazon SES service in order to
-get authentication details to be able to send emails.
+* You must have an Amazon AWS account.
+* If you want to use a port number other than 80, you will need to edit the Amazon security group
+settings for your AMI instance to add it in,
+or you won't be able to access it externally.
+* You must register for the Amazon SES service in order to get 
+SES SMTP server authentication details to be able to send emails.
+* When testing the SES service from your Docker instance, you must first verify your from 
+(and probably to) email address(es) using the Amazon console, or your message will be 
+rejected.
+
+You can test sending emails using the following command:
+
+```
+ssmtp -v success@simulator.amazonses.com << EMAIL
+To: success@simulator.amazonses.com
+From: admin@moodle.domain.com
+Subject: Test from moodle on docker using ssmtp
+
+Hello, world.
+
+EMAIL
+```
 
 You can choose not to use the SES service, but another email provider instead. 
 However, you'll have to figure out the exact email configuration yourself, and it's
 not trivial.
 
-If you want to use a port number other than 80, you will need to edit the Amazon security group
-settings to add it in, or you won't be able to access it externally.
 
 ## Acknowledgements
 
