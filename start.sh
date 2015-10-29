@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ ! -f /var/www/html/moodle/config.php ]; then
+if [ ! -f /var/www/html/config.php ]; then
   #mysql has to be started this way as it doesn't work to call from /etc/init.d
   /usr/bin/mysqld_safe &
   sleep 10s
@@ -21,7 +21,7 @@ if [ ! -f /var/www/html/moodle/config.php ]; then
   s/username/moodle/
   s/password/$MOODLE_PASSWORD/
   s/example.com/$VIRTUAL_HOST/
-  s/\/home\/example\/moodledata/\/var\/moodledata/" /var/www/html/moodle/config-dist.php > /var/www/html/moodle/config.php
+  s/\/home\/example\/moodledata/\/var\/moodledata/" /var/www/html/config-dist.php > /var/www/html/config.php
 
   # sed -i 's/PermitRootLogin without-password/PermitRootLogin Yes/' /etc/ssh/sshd_config
 
@@ -40,12 +40,14 @@ if [ ! -f /var/www/html/moodle/config.php ]; then
       -e "s/^(hostname=).*/\1$VIRTUAL_HOST/" \
       -e "/^(hostname=)/ s/$/\nAuthUser=$AUTH_USER\nAuthPass=$AUTH_PASS\nUseTLS=YES/" \
       -e "s/^#(FromLineOverride)/\1/" /etc/ssmtp/ssmtp.conf
+    echo Mail host: $MAIL_HOST
   fi
 
 
   if [ ! -z "$APACHE_PORT" ]; then
     sed -ri -e "s/^(Listen).*/\1 $APACHE_PORT/" /etc/apache2/ports.conf
     sed -ri -e "s/^(<VirtualHost \*):.*>/\1:$APACHE_PORT>/" /etc/apache2/sites-available/000-default.conf
+    echo Apache port: $APACHE_PORT
   fi
 
 fi
