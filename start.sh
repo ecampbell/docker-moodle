@@ -34,21 +34,55 @@ if [ ! -f /var/www/html/config.php ]; then
 
   # Configure ssmtp to forward mail to Amazon SES SMTP server
   # cf. http://edoceo.com/howto/ssmtp#ses
-  if [ ! -z "$MAIL_HOST" -a ! -z "$VIRTUAL_HOST" -a ! -z "$AUTH_USER" -a ! -z "$AUTH_PASS" ]; then
+  if [ ! -z "$MAIL_HOST"  -a ! -z "$AUTH_USER" -a ! -z "$AUTH_PASS" ]; then
     sed -ri -e "s/^(mailhub=).*/\1$MAIL_HOST/" \
-      -e "s/^#(rewriteDomain=)/\1$VIRTUAL_HOST/" \
-      -e "s/^(hostname=).*/\1$VIRTUAL_HOST/" \
-      -e "/^(hostname=)/ s/$/\nAuthUser=$AUTH_USER\nAuthPass=$AUTH_PASS\nUseTLS=YES/" \
-      -e "s/^#(FromLineOverride)/\1/" /etc/ssmtp/ssmtp.conf
+      -e "s/^#(FromLineOverride)/\1/" \
+      /etc/ssmtp/ssmtp.conf
+
+    # Amazon SES specific mail settings
+    if [[ $MAIL_HOST = *amazonaws* ]]; then
+      sed -ri -e "/^(hostname=)/ s/$/\nAuthUser=$AUTH_USER\nAuthPass=$AUTH_PASS\nUseTLS=YES/" \
+        -e "s/^(hostname=).*/\1$VIRTUAL_HOST/" \
+        -e "s/^#(rewriteDomain=)/\1$VIRTUAL_HOST/" \
+        /etc/ssmtp/ssmtp.conf
+    fi
+
+    # GMail specific mail settings
+    if [[ $MAIL_HOST = *gmail* ]]; then
+      sed -ri -e "s/^(hostname=).*/\1$AUTH_USER/" \
+        -e "/^(hostname=)/ s/$/\nAuthUser=$AUTH_USER\nAuthPass=$AUTH_PASS\nUseTLS=YES\nUseSTARTTLS=YES/" \
+        -e "s/^#(rewriteDomain=)/\1gmail.com/" \
+        " etc/ssmtp/ssmtp.conf
+    fi
+
+    # Reverse aliases
+    echo "root:postmaster@$VIRTUAL_HOST:$MAIL_HOST" >>/etc/ssmtp/revaliases
+    echo "www-data:postmaster@$VIRTUAL_HOST:$MAIL_HOST" >>/etc/ssmtp/revaliases
+
+    # Tell PHP to send emails using ssmtp, not sendmail
+    sed -ri -e "s/^;(sendmail_path=).*/\1 /usr/sbin/ssmtp -t/" /etc/php5/apache2/php.ini
     echo Mail host: $MAIL_HOST
   fi
 
-
+  # Change the web server port from the default
   if [ ! -z "$APACHE_PORT" ]; then
     sed -ri -e "s/^(Listen).*/\1 $APACHE_PORT/" /etc/apache2/ports.conf
     sed -ri -e "s/^(<VirtualHost \*):.*>/\1:$APACHE_PORT>/" /etc/apache2/sites-available/000-default.conf
     echo Apache port: $APACHE_PORT
   fi
+
+  # Install Moodle non-interactively if an administration email address and password are provided
+  if [ ! -z "$ADMIN_EMAIL" -a ! -z "$ADMIN_PASS" ]; then
+    cd /var/www/html
+    # Set an explicit port for Moodle wwwroot if port 80 not used
+    if [ ! -z "$APACHE_PORT" ]; then
+      VIRTUAL_PORT=:$APACHE_PORT
+    fi
+
+    /usr/bin/php admin/cli/install.php --lang=en --wwwroot=http://$VIRTUAL_HOST$VIRTUAL_PORT --dataroot=/var/moodledata --dbuser=moodle --dbpass=$MOODLE_PASSWORD --dbport=3306 --adminpass=$ADMIN_PASS --adminemail=$ADMIN_EMAIL  --non-interactive --agree-license --allow-unstable
+    echo Moodle configuration completed
+  fi
+
 
 fi
 # start all the services

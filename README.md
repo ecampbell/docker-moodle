@@ -70,7 +70,7 @@ EMAIL
 The sSMTP service is configured using information from http://edoceo.com/howto/ssmtp#ses.
 You can choose not to use the Amazon SES service, and use another email provider instead. 
 For example, instructions for GMail are available at https://wiki.archlinux.org/index.php/SSMTP
-
+For PHP/ssmtp configuration, see https://reidliujun.wordpress.com/2014/07/24/ubuntu-email-server/
 
 ## Acknowledgements
 
