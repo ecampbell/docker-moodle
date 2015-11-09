@@ -18,9 +18,9 @@ if [ ! -f /var/www/html/config.php ]; then
   # echo $SSH_PASSWORD > /ssh-pw.txt
 
   sed -e "s/pgsql/mysqli/
-  s/username/moodle/
-  s/password/$MOODLE_PASSWORD/
-  s/example.com/$VIRTUAL_HOST/
+  s/'username'/'moodle'/
+  s/'password'/'$MOODLE_PASSWORD'/
+  s,example.com/moodle,$VIRTUAL_HOST,
   s/\/home\/example\/moodledata/\/var\/moodledata/" /var/www/html/config-dist.php > /var/www/html/config.php
 
   # sed -i 's/PermitRootLogin without-password/PermitRootLogin Yes/' /etc/ssh/sshd_config
