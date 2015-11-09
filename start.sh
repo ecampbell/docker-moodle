@@ -52,7 +52,7 @@ if [ ! -f /var/www/html/config.php ]; then
       sed -ri -e "s/^(hostname=).*/\1$AUTH_USER/" \
         -e "/^(hostname=)/ s/$/\nAuthUser=$AUTH_USER\nAuthPass=$AUTH_PASS\nUseTLS=YES\nUseSTARTTLS=YES/" \
         -e "s/^#(rewriteDomain=)/\1gmail.com/" \
-        " etc/ssmtp/ssmtp.conf
+        etc/ssmtp/ssmtp.conf
     fi
 
     # Reverse aliases
@@ -60,7 +60,7 @@ if [ ! -f /var/www/html/config.php ]; then
     echo "www-data:postmaster@$VIRTUAL_HOST:$MAIL_HOST" >>/etc/ssmtp/revaliases
 
     # Tell PHP to send emails using ssmtp, not sendmail
-    sed -ri -e "s/^;(sendmail_path=).*/\1 /usr/sbin/ssmtp -t/" /etc/php5/apache2/php.ini
+    sed -ri -e 's,^;(sendmail_path).*,\1 =/usr/sbin/ssmtp -t,' /etc/php5/apache2/php.ini
     echo Mail host: $MAIL_HOST
   fi
 
