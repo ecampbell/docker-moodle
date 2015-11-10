@@ -24,11 +24,6 @@ RUN apt-get -y install apache2 php5 php5-gd libapache2-mod-php5 ssmtp php5-xsl w
 # mysql config
 RUN sed -i -e"s/^bind-address\s*=\s*127.0.0.1/bind-address = 0.0.0.0/" /etc/mysql/my.cnf
 
-RUN easy_install supervisor
-ADD ./start.sh /start.sh
-ADD ./foreground.sh /etc/apache2/foreground.sh
-ADD ./supervisord.conf /etc/supervisord.conf
-
 # Grab the latest Moodle and make it the root website
 ADD https://download.moodle.org/moodle/moodle-latest.tgz /var/www/moodle-latest.tgz
 RUN rm -rf /var/www/html
@@ -37,12 +32,11 @@ RUN chown -R www-data:www-data /var/www/html
 RUN mkdir /var/moodledata
 RUN chown -R www-data:www-data /var/moodledata; chmod 777 /var/moodledata
 
+RUN easy_install supervisor
+ADD ./foreground.sh /etc/apache2/foreground.sh
+ADD ./supervisord.conf /etc/supervisord.conf
+ADD ./start.sh /start.sh
 RUN chmod 755 /start.sh /etc/apache2/foreground.sh
-
-
-# In development, set the Apache port in the docker run command so it can be altered easily
-# EXPOSE 80
-
 
 CMD ["/bin/bash", "/start.sh"]
 
