@@ -16,28 +16,38 @@ docker build -t moodle3b_ssmtp .
 To spawn a new instance of Moodle using port 81 as the web server port:
 
 ```
-docker run --name moodle3b_ssmtp \
+docker run --name moodle3b81_ses \
   -e MOODLE_HOSTNAME=moodle.domain.com \
+  -e MOODLE_ADMIN_EMAIL=MOODLE_EMAIL \
+  -e MOODLE_ADMIN_PASS='MOODLE_PASS' \
   -e MAIL_HOST=email-smtp.eu-west-1.amazonaws.com:465 \
-  -e MAIL_USER=YOUR_EMAIL -e MAIL_PASS='YOUR_MAILPASSWORD' \
+  -e MAIL_USER=MAILUSER -e MAIL_PASS='MAILPASSWORD' \
   -e WEB_PORT=81 --expose=81 -p 81:81 \
   -d -t moodle3b_ssmtp
 ```
 
-You can then visit the following URL in a browser to get started:
+You can then visit the following URL in a browser to log in to your fully installed Moodle server:
 
 ```
 http://moodle.domain.com:81/
 ```
 
+Alternatively, spawn a new instance of Moodle using port 82 and Gmail:
+```
+docker run --name moodle3b82_gmail \
+  -e MOODLE_HOSTNAME=moodle.domain.com \
+  -e MOODLE_ADMIN_EMAIL=MOODLE_EMAIL \
+  -e MOODLE_ADMIN_PASS=MOODLE_PASS \
+  -e MAIL_HOST=smtp.gmail.com:567 \
+  -e MAIL_USER=youremail@gmail.com -e MAIL_PASS=MAILPASSWORD \
+  -e WEB_PORT=82 --expose=82 -p 82:82 \
+  -d -t moodle3b_ssmtp
+```
+
 ## Implementation details
 
-This configuration is tuned for use on an Amazon AMI, using the Amazon SES (Simple Email Service)
-to send out-bound emails from the server for user registration, news, etc.
-
-The SSH service is disabled in the instance, as this seems to be good Docker practice, 
-but it can be easily re-instated by uncommenting it
-(you will need to edit Dockerfile, start.sh and supervisord.conf).
+This configuration is tuned for use on an Amazon AMI, using either the Amazon SES (Simple Email Service)
+or Gmail to send out-bound emails from the server for user registration, news, etc.
 
 ## Pre-requisites
 
@@ -49,11 +59,12 @@ or you won't be able to access it externally.
 SES SMTP server authentication details to be able to send emails
 (cf. http://docs.aws.amazon.com/ses/latest/DeveloperGuide/Welcome.html).
 The details you need include the name of the SMTP mail server, a username and a password.
-(cf. 
 * You must register any email addresses you want to use for testing on the Amazon SES also
 (cf. http://docs.aws.amazon.com/ses/latest/DeveloperGuide/verify-email-addresses.html).
-Verify your from (and probably to) email address(es) using the Amazon console, 
+Verify your from and to email addresses using the Amazon console, 
 or your message will be rejected by the Amazon SES SMTP server.
+
+## Further information
 
 You can test sending emails and watch the progress (-v) using the following command
 (cf. http://www.havetheknowhow.com/Configure-the-server/Install-ssmtp.html):
@@ -69,11 +80,12 @@ Hello, world.
 EMAIL
 ```
 
-The sSMTP service is configured using information from http://edoceo.com/howto/ssmtp#ses.
-You can choose not to use the Amazon SES service, and use another email provider instead. 
-For example, instructions for GMail are available at https://wiki.archlinux.org/index.php/SSMTP
-For PHP/ssmtp configuration, see https://reidliujun.wordpress.com/2014/07/24/ubuntu-email-server/
+See also [ssmtp-howto.md](https://github.com/ecampbell/docker-moodle-ssmtp/ssmtp-howto.md)
+for more detailed instructions on getting Gmail and Amazon SES to accept emails from your server.
 
 ## Acknowledgements
 
 Thanks to [sergiogomez](https://github.com/sergiogomez) for his Dockerfile.
+The sSMTP service is configured using information from http://edoceo.com/howto/ssmtp.
+For PHP/ssmtp configuration, see https://reidliujun.wordpress.com/2014/07/24/ubuntu-email-server/.
+

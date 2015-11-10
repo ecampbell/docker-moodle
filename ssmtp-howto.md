@@ -27,47 +27,12 @@ when it tries to send registration verification details to new users later.
 If it fails you will see a HTML message with Unauthorized in the title element,
 otherwise you should see some HTML telling you how many messages are in your inbox.
 
-### SSMTP configuration with Gmail
-1. Install ssmtp using the command *apt-get install -y ssmtp*.
-2. Edit the file /etc/ssmtp/revaliases and insert the following line, using your own Gmail address:
-```
-root:youremail@gmail.com:smtp.gmail.com:587
-```
-3. Edit the file /etc/ssmtp/ssmtp.conf to look like the following, using your own Gmail address and password:
-```
-#
-# Config file for sSMTP sendmail
-#
-# The person who gets all mail for userids < 1000
-# Make this empty to disable rewriting.
-#root=postmaster
-root=youremail@gmail.com
-
-# The place where the mail goes. The actual machine name is required no
-# MX records are consulted. Commonly mailhosts are named mail.domain.com
-mailhub=smtp.gmail.com:587
-AuthUser=**youremail@gmail.com**
-AuthPass=**yourgmailpassword**
-UseTLS=YES
-UseSTARTTLS=YES
-
-# Where will the mail seem to come from?
-rewriteDomain=gmail.com
-
-# The full hostname
-hostname=**youremail@gmail.com**
-
-# Are users allowed to set their own From: address?
-# YES - Allow the user to specify their own From: address
-# NO - Use the system generated From: address
-FromLineOverride=YES
-```
 4. Test that emails are successfully sent using the following command, replacing email addresses as appropriate:
 ```
-ssmtp -v someone@somewhere.com << EMAIL
-To: someone@somewhere.com
-From: **youremail@gmail.com**
-Subject: Test from Moodle server using ssmtp via Gmail
+ssmtp -v youremail@gmail.com << EMAIL
+To: youremail@gmail.com
+From: youremail@gmail.com
+Subject: Test from server using ssmtp via Gmail
 
 Hello, world.
 
@@ -91,45 +56,11 @@ After verifying that the basic email service works, you need to request access t
 emails to any address by applying to increase your service limit
 (cf. https://docs.aws.amazon.com/ses/latest/DeveloperGuide/request-production-access.html).
 
-### SSMTP configuration with Amazon SES
-1. Install ssmtp using the command *apt-get install -y ssmtp*.
-2. Edit the file /etc/ssmtp/revaliases and insert the following line, using your own Gmail address:
-```
-root:admin@moodle.domain.com:email-smtp.eu-west-1.amazonaws.com
-www-data:admin@moodle.domain.com:email-smtp.eu-west-1.amazonaws.com
-```
-3. Edit the file /etc/ssmtp/ssmtp.conf to look like the following, using your own Gmail address and password:
-```
-#
-# Config file for sSMTP sendmail
-#
-# The person who gets all mail for userids < 1000
-# Make this empty to disable rewriting.
-root=postmaster
-
-# The place where the mail goes. The actual machine name is required no
-# MX records are consulted. Commonly mailhosts are named mail.domain.com
-mailhub=email-smtp.eu-west-1.amazonaws.com:465
-AuthUser=*Amazon SES Username*
-AuthPass=*Amazon SES Password*
-UseTLS=YES
-
-# Where will the mail seem to come from?
-#rewriteDomain=
-
-# The full hostname
-hostname=*moodle.domain.com*
-
-# Are users allowed to set their own From: address?
-# YES - Allow the user to specify their own From: address
-# NO - Use the system generated From: address
-FromLineOverride=YES
-```
 4. Test that emails are successfully sent using the following command, replacing email addresses as appropriate:
 ```
 ssmtp -v success@simulator.amazonses.com << EMAIL
 To: success@simulator.amazonses.com
-From: *verified@email.com*
+From: verified@email.com
 Subject: Test from Amazon AMI using Amazon SES with ssmtp
 
 Hello, world.
