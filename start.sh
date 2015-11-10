@@ -3,7 +3,7 @@ if [ ! -f /var/www/html/config.php ]; then
   #mysql has to be started this way as it doesn't work to call from /etc/init.d
   /usr/bin/mysqld_safe &
   sleep 10s
-  # Here we generate random passwords (thank you pwgen!). The first two are for mysql users, the last batch for random keys in wp-config.php
+  # Here we generate random passwords for the MySQL root and moodle users.
   MOODLE_DB="moodle"
   MYSQL_PASSWORD=`pwgen -c -n -1 12`
   MOODLE_PASSWORD=`pwgen -c -n -1 12`
@@ -17,22 +17,7 @@ if [ ! -f /var/www/html/config.php ]; then
   echo $MOODLE_PASSWORD > /moodle-db-pw.txt
   # echo $SSH_PASSWORD > /ssh-pw.txt
 
-  sed -e "s/pgsql/mysqli/
-  s/'username'/'moodle'/
-  s/'password'/'$MOODLE_PASSWORD'/
-  s,example.com/moodle,$MOODLE_HOSTNAME,
-  s/\/home\/example\/moodledata/\/var\/moodledata/" /var/www/html/config-dist.php > /var/www/html/config.php
-
-  # sed -i 's/PermitRootLogin without-password/PermitRootLogin Yes/' /etc/ssh/sshd_config
-
-  chown www-data:www-data /var/www/html/config.php
-
-  mysqladmin -u root password $MYSQL_PASSWORD
-  mysql -uroot -p$MYSQL_PASSWORD -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY '$MYSQL_PASSWORD' WITH GRANT OPTION; FLUSH PRIVILEGES;"
-  mysql -uroot -p$MYSQL_PASSWORD -e "CREATE DATABASE moodle; GRANT ALL PRIVILEGES ON moodle.* TO 'moodle'@'localhost' IDENTIFIED BY '$MOODLE_PASSWORD'; FLUSH PRIVILEGES;"
-  killall mysqld
-
-  # Configure ssmtp to forward mail to Amazon SES SMTP server
+  # Configure ssmtp to forward mail using either Amazon SES or Gmail
   # cf. http://edoceo.com/howto/ssmtp#ses
   if [ ! -z "$MAIL_HOST"  -a ! -z "$MAIL_USER" -a ! -z "$MAIL_PASS" ]; then
     sed -ri -e "s/^(mailhub=).*/\1$MAIL_HOST/" \
@@ -47,7 +32,7 @@ if [ ! -f /var/www/html/config.php ]; then
         /etc/ssmtp/ssmtp.conf
     fi
 
-    # GMail specific mail settings
+    # Gmail specific mail settings
     if [[ $MAIL_HOST = *gmail* ]]; then
       sed -ri -e "s/^(hostname=).*/\1$MAIL_USER/" \
         -e "/^(hostname=)/ s/$/\nAuthUser=$MAIL_USER\nAuthPass=$MAIL_PASS\nUseTLS=YES\nUseSTARTTLS=YES/" \
@@ -63,6 +48,21 @@ if [ ! -f /var/www/html/config.php ]; then
     sed -ri -e 's,^;(sendmail_path).*,\1 =/usr/sbin/ssmtp -t,' /etc/php5/apache2/php.ini
     echo Mail host: $MAIL_HOST
   fi
+
+  # Configure Moodle directories
+  sed -e "s/pgsql/mysqli/
+  s/'username'/'moodle'/
+  s/'password'/'$MOODLE_PASSWORD'/
+  s,example.com/moodle,$MOODLE_HOSTNAME,
+  s/\/home\/example\/moodledata/\/var\/moodledata/" /var/www/html/config-dist.php > /var/www/html/config.php
+
+  # sed -i 's/PermitRootLogin without-password/PermitRootLogin Yes/' /etc/ssh/sshd_config
+
+  chown www-data:www-data /var/www/html/config.php
+
+  mysqladmin -u root password $MYSQL_PASSWORD
+  mysql -uroot -p$MYSQL_PASSWORD -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY '$MYSQL_PASSWORD' WITH GRANT OPTION; FLUSH PRIVILEGES;"
+  mysql -uroot -p$MYSQL_PASSWORD -e "CREATE DATABASE moodle; GRANT ALL PRIVILEGES ON moodle.* TO 'moodle'@'localhost' IDENTIFIED BY '$MOODLE_PASSWORD'; FLUSH PRIVILEGES;"
 
   # Change the web server port from the default
   if [ ! -z "$WEB_PORT" ]; then
@@ -84,6 +84,8 @@ if [ ! -f /var/www/html/config.php ]; then
     echo Moodle configuration completed
   fi
 
+  # Shutdown MySQL once we've installed Moodle
+  killall mysqld
 
 fi
 # start all the services
