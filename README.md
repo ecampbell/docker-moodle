@@ -86,6 +86,8 @@ for more detailed instructions on getting Gmail and Amazon SES to accept emails 
 ## Acknowledgements
 
 Thanks to [sergiogomez](https://github.com/sergiogomez) for his Dockerfile.
+
 The sSMTP service is configured using information from http://edoceo.com/howto/ssmtp.
+
 For PHP/ssmtp configuration, see https://reidliujun.wordpress.com/2014/07/24/ubuntu-email-server/.
 
