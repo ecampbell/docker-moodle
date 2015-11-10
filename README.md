@@ -80,7 +80,7 @@ Hello, world.
 EMAIL
 ```
 
-See also [ssmtp-howto.md](https://github.com/ecampbell/docker-moodle-ssmtp/ssmtp-howto.md)
+See also the ssmtp-howto.md file
 for more detailed instructions on getting Gmail and Amazon SES to accept emails from your server.
 
 ## Acknowledgements
