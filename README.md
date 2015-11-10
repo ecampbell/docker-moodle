@@ -18,7 +18,9 @@ To spawn a new instance of Moodle using port 81 as the web server port:
 ```
 docker run --name moodle3b_ssmtp \
   -e MOODLE_HOSTNAME=moodle.domain.com \
-  -e MAIL_HOST=email-smtp.us-east-1.amazonaws.com:465 \
+  -e MOODLE_ADMIN_EMAIL=MOODLE_EMAIL \
+  -e MOODLE_ADMIN_PASS=MOODLE_PASS \
+  -e MAIL_HOST=email-smtp.eu-west-1.amazonaws.com:465 \
   -e MAIL_USER=MAILUSER -e MAIL_PASS=MAILPASSWORD \
   -e WEB_PORT=81 --expose=81 -p 81:81 \
   -d -t moodle3b_ssmtp

@@ -20,7 +20,7 @@ if [ ! -f /var/www/html/config.php ]; then
   sed -e "s/pgsql/mysqli/
   s/'username'/'moodle'/
   s/'password'/'$MOODLE_PASSWORD'/
-  s,example.com/moodle,$WEB_HOST,
+  s,example.com/moodle,$MOODLE_HOSTNAME,
   s/\/home\/example\/moodledata/\/var\/moodledata/" /var/www/html/config-dist.php > /var/www/html/config.php
 
   # sed -i 's/PermitRootLogin without-password/PermitRootLogin Yes/' /etc/ssh/sshd_config
@@ -42,8 +42,8 @@ if [ ! -f /var/www/html/config.php ]; then
     # Amazon SES specific mail settings
     if [[ $MAIL_HOST = *amazonaws* ]]; then
       sed -ri -e "/^(hostname=)/ s/$/\nAuthUser=$MAIL_USER\nAuthPass=$MAIL_PASS\nUseTLS=YES/" \
-        -e "s/^(hostname=).*/\1$WEB_HOST/" \
-        -e "s/^#(rewriteDomain=)/\1$WEB_HOST/" \
+        -e "s/^(hostname=).*/\1$MOODLE_HOSTNAME/" \
+        -e "s/^#(rewriteDomain=)/\1$MOODLE_HOSTNAME/" \
         /etc/ssmtp/ssmtp.conf
     fi
 
@@ -56,8 +56,8 @@ if [ ! -f /var/www/html/config.php ]; then
     fi
 
     # Reverse aliases
-    echo "root:postmaster@$WEB_HOST:$MAIL_HOST" >>/etc/ssmtp/revaliases
-    echo "www-data:postmaster@$WEB_HOST:$MAIL_HOST" >>/etc/ssmtp/revaliases
+    echo "root:postmaster@$MOODLE_HOSTNAME:$MAIL_HOST" >>/etc/ssmtp/revaliases
+    echo "www-data:postmaster@$MOODLE_HOSTNAME:$MAIL_HOST" >>/etc/ssmtp/revaliases
 
     # Tell PHP to send emails using ssmtp, not sendmail
     sed -ri -e 's,^;(sendmail_path).*,\1 =/usr/sbin/ssmtp -t,' /etc/php5/apache2/php.ini
@@ -72,7 +72,7 @@ if [ ! -f /var/www/html/config.php ]; then
   fi
 
   # Install Moodle non-interactively if an administration email address and password are provided
-  if [ ! -z "$ADMIN_EMAIL" -a ! -z "$ADMIN_PASS" ]; then
+  if [ ! -z "$MOODLE_ADMIN_EMAIL" -a ! -z "$MOODLE_ADMIN_PASS" ]; then
     cd /var/www/html
     # Set an explicit port for Moodle wwwroot if port 80 not used
     if [ ! -z "$WEB_PORT" ]; then
@@ -80,7 +80,7 @@ if [ ! -f /var/www/html/config.php ]; then
     fi
 
     echo Moodle configuration started
-    /usr/bin/php admin/cli/install.php --lang=en --wwwroot=http://$WEB_HOST$VIRTUAL_PORT --dataroot=/var/moodledata --dbuser=moodle --dbpass=$MOODLE_PASSWORD --dbport=3306 --adminpass=$ADMIN_PASS --adminemail=$ADMIN_EMAIL  --non-interactive --agree-license --allow-unstable
+    /usr/bin/php admin/cli/install.php --lang=en --wwwroot=http://$MOODLE_HOSTNAME$VIRTUAL_PORT --dataroot=/var/moodledata --dbuser=moodle --dbpass=$MOODLE_PASSWORD --dbport=3306 --adminpass=$MOODLE_ADMIN_PASS --adminemail=$MOODLE_ADMIN_EMAIL  --non-interactive --agree-license --allow-unstable
     echo Moodle configuration completed
   fi
 
