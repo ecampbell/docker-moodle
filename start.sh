@@ -80,11 +80,11 @@ if [ ! -f /var/www/html/config.php ]; then
     fi
 
     echo Moodle configuration started
-    /usr/bin/php admin/cli/install.php --lang=en --wwwroot=http://$MOODLE_HOSTNAME$VIRTUAL_PORT --dataroot=/var/moodledata --dbuser=moodle --dbpass=$MOODLE_PASSWORD --dbport=3306 --adminpass=$MOODLE_ADMIN_PASS --adminemail=$MOODLE_ADMIN_EMAIL  --non-interactive --agree-license --allow-unstable
+    /usr/bin/php admin/cli/install.php --lang=en --wwwroot=http://$MOODLE_HOSTNAME$VIRTUAL_PORT --dataroot=/var/moodledata --dbuser=moodle --dbpass="$MOODLE_PASSWORD" --dbport=3306 --adminpass="$MOODLE_ADMIN_PASS" --adminemail="$MOODLE_ADMIN_EMAIL"  --non-interactive --agree-license --allow-unstable
     echo Moodle configuration completed
   fi
 
 
 fi
 # start all the services
-/usr/local/bin/supervisord -n
+/usr/local/bin/supervisord -n -c /etc/supervisord.conf
